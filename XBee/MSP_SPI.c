@@ -11,6 +11,7 @@
 
 #define DATA 0x00
 #define XBEE_ADDR 0x01
+#define DUMMY_CHAR 'V'
 
 void spi_init(){
 	UCB0CTL1 |= UCSWRST;
@@ -18,8 +19,6 @@ void spi_init(){
 	UCB0CTL0 |= UCMSB|UCMST|UCSYNC; //didn't set UCCKPL
 
 	UCB0CTL1 |= UCSSEL1;
-
-	UCB0STAT |= UCLISTEN;
 
 	P1SEL |= BIT5|BIT6|BIT7;        //Clk(P1.5), SOMI(P1.6), SIMO(P1.7)
 	P1SEL2 |= BIT5|BIT6|BIT7;
@@ -30,29 +29,41 @@ void spi_init(){
 	UCB0CTL1 &= ~UCSWRST;
 }
 
-unsigned char sendByte(int byteToSend){
+unsigned char readByte(){
 
 	unsigned char readByte;
-	unsigned char SPI_ATTN;
-
 
     set_SS_lo();
+    readByte = UCB0RXBUF;//Read contents of receive buffer
+    UCB0TXBUF = DUMMY_CHAR; //dummy send
 
-    UCB0TXBUF = byteToSend;
-
-	SPI_ATTN=P2IN&2;
-	/*
-    while(!(UCB0RXIFG & SPI_ATTN))
-    {
-        // wait until you've received a byte
-    }
-    */
-
-	readByte = UCB0RXBUF;
+    while(UCB0RXIFG==0);// wait until you've received a byte
+	readByte = UCB0RXBUF;//Read contents of receive buffer
 
     set_SS_hi();
 
-    return readByte;
+    //return readByte;
+    return UCB0RXBUF;
+}
+
+unsigned char sendByte(int byteToSend){
+
+    set_SS_lo();
+
+    //Put byte to send in transmission buffer/MOSI
+    UCB0TXBUF = byteToSend;
+
+    while(UCB0RXIFG==0);// wait until you've received a byte
+	//Set SS back to high to stop talking to Xbee
+    set_SS_hi();
+
+    /*
+    if(rxData==0x7E){ //if rxData is the delimiter 0x7E
+    	while(1){}//hold here
+    }
+    */
+
+    return UCB0RXBUF;
 }
 
 unsigned char send2Bytes(int bytesToSend){
@@ -100,20 +111,6 @@ unsigned char sendXBytes(long long* start, char length, char isXbeeAddress){
 		i++;
 	}
 	return 1;
-}
-
-
-unsigned char listenForSPI(){
-	unsigned char readByte;
-	set_SS_lo();
-	int SPI_ATTN;
-	SPI_ATTN=P2IN&2;
-	while(!SPI_ATTN){} //wait until ATTN is asserted (low)
-
-	readByte=UCB0RXBUF;
-    set_SS_hi();
-
-    return readByte;
 }
 
 void set_SS_lo(){

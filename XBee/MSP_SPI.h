@@ -48,7 +48,7 @@ unsigned char send2Bytes(int bytesToSend);
  */
 unsigned char sendXBytes(long long *start, char length, char isXbeeAddress);
 
-unsigned char listenForSPI();
+unsigned char readByte();
 
 void set_SS_lo();
 void set_SS_hi();

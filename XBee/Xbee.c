@@ -61,13 +61,29 @@ void sendMessage(long long *address,char txData[]){
 
 
 void sendBroadcastMessage(char txData[]){
+	//Set pAddr to Xbee's broadcast address
 	long long broadcastAddr=0x000000000000FFFF;
 	long long *pAddr=&broadcastAddr;
+
 	sendMessage(pAddr,txData);
 }
 
-char* receiveMessage(){
-	return 0;
+unsigned char receiveByte(){
+	unsigned char rxData=0;
+
+	//P2IN&0x04 looks at the 2nd bit in P2IN, which corresponds to P2.2,
+	//the pin connected to the XBee SPI_ATTN
+
+	//while(!((!P2IN&0x04) && UCB0RXIFG)){
+	while(P2IN&0x04){
+		//Wait for SPI_ATTN to go low
+	}
+
+	//Once conditions are met, listen to SPI MISO
+	rxData=readByte();
+
+	//Return data pointer
+	return rxData;
 }
 
 /**
@@ -110,3 +126,4 @@ char getChecksum(char frameType, char frameID, long long *address,
 
 	return checksum;
 }
+
