@@ -10,6 +10,8 @@
 #include "Xbee.h"
 #include <msp430.h>
 
+#define ARRAY_SIZE 50
+
 #define START_DELIMITER 0x7E
 #define TX_REQUEST 0x10
 
@@ -70,22 +72,45 @@ void sendBroadcastMessage(char txData[]){
 	sendMessage(pAddr,txData);
 }
 
-unsigned char receiveMessage(){
-	unsigned char rxData=0;
+unsigned char* receiveMessage(){
+	unsigned int rxMessageArraySize;
+	unsigned char messageArray[ARRAY_SIZE];
+	unsigned int messageLength;
+	unsigned int upperLengthInt;
+	unsigned char i=0;
 
-	//P2IN&0x04 looks at the 2nd bit in P2IN, which corresponds to P2.2,
-	//the pin connected to the XBee SPI_ATTN
+	while(P2IN&0x04){}//Wait for SPI_ATTN to go low
 
-	//while(!((!P2IN&0x04) && UCB0RXIFG)){
-	while(P2IN&0x04){
-		//Wait for SPI_ATTN to go low
+	/*//Trial code
+	while(readByte()!=0x7E){}//Wait for 0x7E
+
+	//Get message length by concatenating the two lengthBytes
+	unsigned char upperLength=readByte();
+	unsigned char lowerLength=readByte();
+	upperLengthInt=upperLength << 8;
+	messageLength=upperLengthInt+lowerLength;
+
+ 	while(readByte()!=0x90){} //Wait for RX Indicator frame type byte
+
+	rxMessageArraySize=TX_FRAME_LENGTH_WO_TXDATA+messageLength;// Determine length of message
+
+	for(i=0;i<rxMessageArraySize;i++){
+		messageArray[i]=readByte();
+	}//End trial code
+	*/
+
+	for(i=0;i<ARRAY_SIZE;i++){
+		messageArray[i]=readByte();
 	}
 
-	//Once conditions are met, listen to SPI MISO
-	rxData=readByte();
+	if(i<ARRAY_SIZE){
+		i++;
+	}else{
+		i=0;
+	}
+	return messageArray;
+	//End working code
 
-	//Return data pointer
-	return rxData;
 }
 
 /**

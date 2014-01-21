@@ -32,7 +32,7 @@ void sendBroadcastMessage(char txData[]);
  * Returns:
  * Pointer to the beginning of the RX data
  */
-unsigned char receiveMessage();
+unsigned char* receiveMessage();
 
 /**
  * Calculates checksum.
