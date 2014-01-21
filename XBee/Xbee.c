@@ -57,6 +57,8 @@ void sendMessage(long long *address,char txData[]){
 	checksum=getChecksum(TX_REQUEST,GET_FRAME_ID,address,RESERVED_BYTES,MAX_BROADCAST_RAD,USE_TO_PARAM,txData,dataLength);
 
 	sendByte(checksum);
+
+
 }
 
 
@@ -68,7 +70,7 @@ void sendBroadcastMessage(char txData[]){
 	sendMessage(pAddr,txData);
 }
 
-unsigned char receiveByte(){
+unsigned char receiveMessage(){
 	unsigned char rxData=0;
 
 	//P2IN&0x04 looks at the 2nd bit in P2IN, which corresponds to P2.2,

@@ -5,6 +5,15 @@
 
 #define RX_ARRAY_SIZE 50
 
+#define THE_BRASS 0x0013A20040A18EF1
+#define THE_WIRE 0x0013A20040AE91BA
+#define THE_DOT 0x0013A20040AE929C
+
+#define MESS1 "hello"
+#define MESS2 "Bryan"
+#define MESS3 "Hello I'm Bryan"
+
+
 
 /*
  * main.c
@@ -15,14 +24,16 @@ int main(void) {
 	WDTCTL = WDTPW | WDTHOLD;	// Stop watchdog timer
 	spi_init();
 
-	/*//TX Test code
-	long long xbeeAddr=0x0013A20040A18EF1;
+	/*
+	//TX Test code
+	long long xbeeAddr=THE_BRASS;
 	long long *pAddress=&xbeeAddr;
 
 	while(1){
-		//sendMessage(pAddress,"hello");
-		sendBroadcastMessage("hello");
-	}
+		//sendMessage(pAddress, "hello");
+		sendMessage(pAddress, MESS1);
+		//sendBroadcastMessage(MESS1);
+	}//End TX Test code
 	*/
 
 
@@ -47,10 +58,11 @@ int main(void) {
 		}else{
 			i=0;
 		}
+	}//End RX Test Code
 
 
 
-	}
+
 
 }
 

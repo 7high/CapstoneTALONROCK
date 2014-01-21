@@ -47,23 +47,18 @@ unsigned char readByte(){
 }
 
 unsigned char sendByte(int byteToSend){
-
+	unsigned char readByte;
     set_SS_lo();
 
     //Put byte to send in transmission buffer/MOSI
     UCB0TXBUF = byteToSend;
 
     while(UCB0RXIFG==0);// wait until you've received a byte
-	//Set SS back to high to stop talking to Xbee
+    readByte = UCB0RXBUF;//dummy read
+
     set_SS_hi();
 
-    /*
-    if(rxData==0x7E){ //if rxData is the delimiter 0x7E
-    	while(1){}//hold here
-    }
-    */
-
-    return UCB0RXBUF;
+    return readByte;
 }
 
 unsigned char send2Bytes(int bytesToSend){
